@@ -1,0 +1,16 @@
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<SCRIPT type=text/javascript>
+</SCRIPT>
+<body>
+<table>
+<tr><td>
+$view.weatherPlanner.weatherData
+</td>
+<td>
+$view.weatherPlanner.bedrockResponse
+</td>
+</tr>
+</body>
+</html>
