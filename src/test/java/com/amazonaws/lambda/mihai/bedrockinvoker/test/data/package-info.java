@@ -1,0 +1,1 @@
+package com.amazonaws.lambda.mihai.bedrockinvoker.test.data;

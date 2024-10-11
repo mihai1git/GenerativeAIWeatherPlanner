@@ -1,7 +1,6 @@
 package com.amazonaws.lambda.mihai.bedrockinvoker.model;
 
 import java.text.SimpleDateFormat;
-import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;

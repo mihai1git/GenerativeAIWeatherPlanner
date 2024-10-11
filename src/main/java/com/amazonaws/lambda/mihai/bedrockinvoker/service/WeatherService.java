@@ -28,11 +28,11 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 @TraceAll
 public class WeatherService {
 	
-	private Logger logger = LogManager.getLogger(WeatherService.class);
+	private static Logger logger = LogManager.getLogger(WeatherService.class);
 	private Map<String, String> environmentVariables;
 	private static final String weatherKey = "WEATHER_KEY";
-	private final String weatherURL = "https://api.openweathermap.org/data/3.0/onecall?units=metric&exclude=daily,minutely";
-	private final Integer maxHours = 12;
+	private static final String weatherURL = "https://api.openweathermap.org/data/3.0/onecall?units=metric&exclude=daily,minutely";
+	private static final Integer maxHours = 12;
 	
 	public WeatherData getWeatherForecast (String lat, String lon) {
 
@@ -63,7 +63,7 @@ public class WeatherService {
         response.setLat(objectRequest.at("/lat").asText());
         response.setLon(objectRequest.at("/lon").asText());
         
-        int hourCounter = 0;
+        Integer hourCounter = 0;
         List<JsonNode> firstHours = new ArrayList<JsonNode>();
         
         if (hourlyForecast.isArray()) {
@@ -93,6 +93,9 @@ public class WeatherService {
                 	h.setIsDay(Boolean.TRUE);
                 }
                 
+                h.setTemperature(jsonNode.get("temp").asText());
+                h.setFeelTemperature(jsonNode.get("feels_like").asText());
+                
                 if (jsonNode.get("weather").isArray()) {
                 	List<WeatherDataHourDetail> details = new ArrayList<WeatherDataHourDetail>();
                 	h.setDetails(details);
@@ -110,7 +113,7 @@ public class WeatherService {
                
         response.setJsonHourly(getJsonFromArray(firstHours));
         
-		//logger.debug("getWeatherForecast response: "  + response);
+		logger.debug("getWeatherForecast response: "  + response);
 		return response;
 	}
 	

@@ -37,13 +37,12 @@ public class InvokeModel {
 	                 .body(SdkBytes.fromUtf8String(nativeRequest))
 	                 .modelId(modelId)
 	         );
-	         	
+	         logger.debug("response: " + response.body().asUtf8String());
 	         // Decode the response body.
 	         JSONObject responseBody = new JSONObject(response.body().asUtf8String());
 	         	
 	         // Retrieve the generated text from the model's response.
 	         String text = new JSONPointer("/results/0/outputText").queryFrom(responseBody).toString();
-	         logger.debug("response: " + text);
 	
 	         return text;
 	

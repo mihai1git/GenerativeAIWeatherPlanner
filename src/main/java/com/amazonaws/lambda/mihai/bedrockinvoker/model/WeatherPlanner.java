@@ -4,7 +4,8 @@ public class WeatherPlanner {
 
 	private WeatherData weatherData;
 	
-	private String bedrockResponse;
+	private String llmResponseTitle;
+	private String llmResponseBody;
 
 	public WeatherData getWeatherData() {
 		return weatherData;
@@ -14,13 +15,21 @@ public class WeatherPlanner {
 		this.weatherData = weatherData;
 	}
 
-	public String getBedrockResponse() {
-		return bedrockResponse;
+	public String getLlmResponseTitle() {
+		return llmResponseTitle;
 	}
 
-	public void setBedrockResponse(String bedrockResponse) {
-		this.bedrockResponse = bedrockResponse;
+	public void setLlmResponseTitle(String llmResponseTitle) {
+		this.llmResponseTitle = llmResponseTitle;
 	}
-	
+
+	public String getLlmResponseBody() {
+		return llmResponseBody;
+	}
+
+	public void setLlmResponseBody(String llmResponseBody) {
+		this.llmResponseBody = llmResponseBody;
+	}
+
 	
 }

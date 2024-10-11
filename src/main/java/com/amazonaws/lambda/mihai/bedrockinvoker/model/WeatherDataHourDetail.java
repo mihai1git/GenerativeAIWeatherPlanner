@@ -5,7 +5,6 @@ public class WeatherDataHourDetail {
 	private String main;
 	private String description;
 	private String icon;
-	private String iconURL;
 	
 	@Override
 	public String toString() {
@@ -15,7 +14,7 @@ public class WeatherDataHourDetail {
 	}
 	
 	public String getIconURL() {
-		return (icon == null)?null:"http://openweathermap.org/img/w/" + iconURL + ".png";
+		return (icon == null)?"":String.format("http://openweathermap.org/img/w/%s.png", icon);
 	}
 	public String getMain() {
 		return main;

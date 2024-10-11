@@ -69,13 +69,14 @@ public class LambdaFunctionHandler implements RequestHandler<APIGatewayV2HTTPEve
     	
     	logger.debug("Received HTTP AWS API GW route key: " + event.getRouteKey());
     	
-    	
-    	Map<String, String> queryParams = event.getQueryStringParameters();
-    	String lat = queryParams.get("lat");
-    	String lon = queryParams.get("lon");
     	//if option is NO, choose default: Bucharest/Europe
-    	if (lat == null) lat = "44.43225";
-    	if (lon == null) lon = "26.10626";
+    	String lat = "44.43225";
+    	String lon = "26.10626";
+    	Map<String, String> queryParams = event.getQueryStringParameters();
+    	if (queryParams != null && queryParams.get("lat") != null && queryParams.get("lon") != null) {
+        	lat = queryParams.get("lat");
+        	lon = queryParams.get("lon");
+    	}
     	logger.debug("geolocation (lat,lon): " + lat + " " + lon);
     	
         //bedrockService.logFoundationModelsInfo();
@@ -106,7 +107,7 @@ public class LambdaFunctionHandler implements RequestHandler<APIGatewayV2HTTPEve
     }
     
     private void setEnvironmentVars (Map<String, String> vars) {
-    	logger.debug(Arrays.toString(vars.entrySet().toArray()));
+    	//logger.debug(Arrays.toString(vars.entrySet().toArray()));
     	bedrockService.setEnvironmentVariables(vars);
     	weatherService.setEnvironmentVariables(vars);
     }
