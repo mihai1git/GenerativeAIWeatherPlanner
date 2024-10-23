@@ -27,7 +27,7 @@ public class BedrockData {
 			
 		     public InvokeModelResponse answer(InvocationOnMock invocation) throws Throwable {
 		    	 
-		    	 logger.debug("bedrockRuntimeClient.invokeModel");
+		    	 logger.debug("mock on bedrockRuntimeClient.invokeModel");
 		    	 
 		    	 String data = TestUtils.readFromProjectResource("src/test/resources/bedrock_response.txt");
 		    	 

@@ -14,6 +14,7 @@ public class WeatherData {
 	private String lat;
 	private String lon;
 	private String timezone;
+	private Long timezoneOffset;
 	private Date serverTime;
 	private Date sunrise;
 	private Date sunset;
@@ -39,7 +40,15 @@ public class WeatherData {
 	public String getSunsetStr() {
 		return formatter.format(sunset);
 	}
-	
+		
+	public Long getTimezoneOffset() {
+		return timezoneOffset;
+	}
+
+	public void setTimezoneOffset(Long timezoneOffset) {
+		this.timezoneOffset = timezoneOffset;
+	}
+
 	public List<WeatherDataHour> getHours() {
 		return hours;
 	}

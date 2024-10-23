@@ -24,6 +24,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 @TraceAll
 public class WeatherService {
@@ -56,6 +57,7 @@ public class WeatherService {
         
         JsonNode hourlyForecast = objectRequest.at("/hourly");
         String timezoneOffset = objectRequest.at("/timezone_offset").asText();
+        response.setTimezoneOffset(Long.valueOf(timezoneOffset));
         response.setServerTime(convertLinuxToDate(objectRequest.at("/current/dt").asText(),timezoneOffset));
         response.setSunrise(convertLinuxToDate(objectRequest.at("/current/sunrise").asText(),timezoneOffset));
         response.setSunset(convertLinuxToDate(objectRequest.at("/current/sunset").asText(),timezoneOffset));
@@ -83,7 +85,9 @@ public class WeatherService {
             	hours.add(h);
             	String dtFieldNode = jsonNode.get("dt").asText();
 
-                h.setHourDate(convertLinuxToDate(dtFieldNode,timezoneOffset));
+            	Date dtDate = convertLinuxToDate(dtFieldNode,timezoneOffset);
+                h.setHourDate(dtDate);
+                ((ObjectNode)jsonNode).put("dt", h.getHourDateStr());// for AI
                 
                 if (h.getHourDate().compareTo(response.getSunrise()) < 0  
                 		|| h.getHourDate().compareTo(response.getSunset()) > 0) {

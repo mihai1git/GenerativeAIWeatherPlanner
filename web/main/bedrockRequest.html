@@ -1,0 +1,38 @@
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="ISO-8859-1">
+<style>
+</style>
+<SCRIPT type=text/javascript>
+function onLoad() {
+	if (confirm("This recommendation is made for default location: Europe/Bucharest.\nIf you want recommendation for your location, press OK.\nFor default press Cancel.")) {
+	  if (navigator.geolocation) {
+	    navigator.geolocation.getCurrentPosition(invokeAWSLocalized, displayError);
+	  } else {
+		  alert("Geolocation is not supported by this browser.");
+	  }
+	} else {
+		document.getElementById("frame").src = "https://2dbz7fjukf.execute-api.us-east-2.amazonaws.com";
+	}
+}
+
+function invokeAWSLocalized(position) {
+  alert("Location sent to application:\nLatitude: " + position.coords.latitude + "\nLongitude: " + position.coords.longitude);
+  document.getElementById("frame").src = "https://2dbz7fjukf.execute-api.us-east-2.amazonaws.com?lat=" + position.coords.latitude + "&lon="+ position.coords.longitude;
+}
+function displayError(error) {
+    var errors = { 
+      1: 'Permission denied',
+      2: 'Position unavailable',
+      3: 'Request timeout'
+    };
+    alert("Error: " + errors[error.code]);
+
+    document.getElementById("frame").src="";
+  }
+  
+</SCRIPT>
+<body onload="onLoad();">
+<iframe id="frame" src="https://mihaiadam.com/wp-content/uploads/2024/10/waiting.html" width="100%" height="500px" ></iframe>
+</body>
+</html>

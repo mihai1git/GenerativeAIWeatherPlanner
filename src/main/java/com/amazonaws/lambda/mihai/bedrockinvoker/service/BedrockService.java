@@ -1,8 +1,12 @@
 package com.amazonaws.lambda.mihai.bedrockinvoker.service;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -33,7 +37,7 @@ public class BedrockService {
 	private Map<String, String> environmentVariables;
 	//amazon.titan-text-lite-v1 / amazon.titan-text-express-v1 / amazon.titan-text-premier-v1:0
 	public static final String modelIDKey = "BEDROCK_MODEL_ID";
-	
+		
 	public BedrockService() {}
 	
 	public static BedrockService build() {
@@ -43,8 +47,8 @@ public class BedrockService {
         BedrockClient bedrockClient = BedrockClient.builder()
         		.region(Region.US_EAST_1)
                 .build();
-        
-		 BedrockRuntimeClient client = BedrockRuntimeClient.builder()
+
+		BedrockRuntimeClient client = BedrockRuntimeClient.builder()
 	             .region(Region.US_EAST_1)
 	             .build();
 		 
@@ -77,13 +81,23 @@ public class BedrockService {
 		values.put("timezone", forecast.getTimezone());
 		values.put("sunrise", formatter.format(forecast.getSunrise()));
 		values.put("sunset", formatter.format(forecast.getSunset()));
+		values.put("timezoneOffset", forecast.getTimezoneOffset());
 		values.put("jsonHourly", forecast.getJsonHourly().replace("\"", "\\\""));
+		
+		String generativeAiStylesStr = environmentVariables.getOrDefault("generativeAiStyles","");
+		List<String> generativeAiStyles = new ArrayList<String>(Arrays.asList(generativeAiStylesStr.split(",")));
+		generativeAiStyles.add(null);
+		Random generator = new Random();
+		int randomStyle = generator.nextInt(generativeAiStyles.size());
+		String genAiStyle = generativeAiStyles.get(randomStyle);
+		values.put("genAiStyle", genAiStyle);
 		
 		String prompt = velocityService.getTemplateFromS3("bedrockPromtContext.vm", values);
 		logger.debug("prompt: " + prompt);	
 		WeatherPlanner planner = new WeatherPlanner();
 		
 		planner.setWeatherData(forecast);
+		planner.setGenAiStyle(genAiStyle);
 		String llmResp = (new InvokeModel()).invokeModel(bedrockRuntimeClient, prompt, environmentVariables.get(modelIDKey));
 		processLLMResponse (planner, llmResp);
 		
