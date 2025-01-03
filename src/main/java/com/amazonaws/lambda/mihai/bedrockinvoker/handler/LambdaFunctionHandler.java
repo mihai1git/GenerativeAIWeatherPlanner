@@ -8,6 +8,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.amazonaws.lambda.mihai.bedrockinvoker.model.RateAuthorization;
 import com.amazonaws.lambda.mihai.bedrockinvoker.model.WeatherData;
+import com.amazonaws.lambda.mihai.bedrockinvoker.model.WeatherException;
 import com.amazonaws.lambda.mihai.bedrockinvoker.model.WeatherPlanner;
 import com.amazonaws.lambda.mihai.bedrockinvoker.model.WeatherPlannerView;
 import com.amazonaws.lambda.mihai.bedrockinvoker.service.BedrockService;
@@ -41,7 +42,7 @@ public class LambdaFunctionHandler implements RequestHandler<APIGatewayV2HTTPEve
     public LambdaFunctionHandler() {
     	bedrockService = BedrockService.build();
     	htmlService = new HTMLService();
-    	weatherService = new WeatherService();
+    	weatherService = WeatherService.build();
     	s3Service = S3Service.build();
     	veloService = VelocityService.build();
     	dynamoService = DynamoService.build();
@@ -114,20 +115,34 @@ public class LambdaFunctionHandler implements RequestHandler<APIGatewayV2HTTPEve
     	}
     	logger.debug("geolocation (lat,lon): " + lat + " " + lon);
     	
-        //bedrockService.logFoundationModelsInfo();
+        if (Boolean.valueOf(environmentVariables.getOrDefault("logFoundationModelsInfo", "false"))) {
+        	bedrockService.logFoundationModelsInfo();
+        }
+    	
     	
         //https://docs.aws.amazon.com/bedrock/latest/userguide/model-ids.html
         //String modelIdentifier = "amazon.titan-text-premier-v1:0";
         //String modelIdentifier = "amazon.titan-text-express-v1";// the one used
         //String modelIdentifier = "amazon.titan-text-lite-v1";
         
-        WeatherData forecast = weatherService.getWeatherForecast(lat, lon);
-        
-        WeatherPlanner result = bedrockService.getWeatherComments(forecast);
-        
-        WeatherPlannerView view = new WeatherPlannerView();
-        view.setWeatherPlanner(result);
-        response = htmlService.getWeatherPlannerPage(view);
+        try {
+            WeatherData forecast = weatherService.getWeatherForecast(lat, lon);
+            
+            WeatherPlanner result = bedrockService.getWeatherComments(forecast);
+            
+            WeatherPlannerView view = new WeatherPlannerView();
+            view.setWeatherPlanner(result);
+            response = htmlService.getWeatherPlannerPage(view);
+            
+        } catch (WeatherException ex) {
+            return APIGatewayV2HTTPResponse.builder()
+                    .withStatusCode(502)
+                    .withHeaders(headers)
+                    .withIsBase64Encoded(false)
+                    .withBody("Bad Gateway: Third party Weather Service ERROR: " + ex.getStatusCode())
+                    .build();
+        }
+
         
         return APIGatewayV2HTTPResponse.builder()
                 .withStatusCode(200)

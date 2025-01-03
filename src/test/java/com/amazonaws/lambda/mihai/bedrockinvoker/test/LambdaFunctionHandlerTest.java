@@ -3,6 +3,7 @@ package com.amazonaws.lambda.mihai.bedrockinvoker.test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
+import java.net.http.HttpClient;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,7 +30,6 @@ import com.amazonaws.lambda.mihai.bedrockinvoker.test.data.S3Data;
 import com.amazonaws.lambda.mihai.bedrockinvoker.test.data.WeatherData;
 import com.amazonaws.lambda.mihai.bedrockinvoker.test.utils.TestContext;
 import com.amazonaws.lambda.mihai.bedrockinvoker.test.utils.TestUtils;
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.document.DynamoDB;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPEvent;
@@ -52,12 +52,13 @@ public class LambdaFunctionHandlerTest {
 	private S3Service s3Service = new S3Service();
 	private DynamoService dynamoService = new DynamoService();
 	private SecurityService securityService = new SecurityService();
+	private WeatherService weatherServiceFull = new WeatherService();
 	
 	private BedrockRuntimeClient bedrockRuntimeClient = Mockito.mock(BedrockRuntimeClient.class);
 	private BedrockClient bedrockClient = Mockito.mock(BedrockClient.class);
-	private WeatherService weatherService = Mockito.mock(WeatherService.class);
 	private AmazonS3 s3Client = Mockito.mock(AmazonS3.class);
 	private DynamoDB documentClient = Mockito.mock(DynamoDB.class);
+	private HttpClient httpClient = Mockito.mock(HttpClient.class);
 	
 	private Map<String, String> vars = new HashMap<String, String>();
 	
@@ -65,11 +66,12 @@ public class LambdaFunctionHandlerTest {
 
         
     public LambdaFunctionHandlerTest () {
-    	handler = new LambdaFunctionHandler(bedrockService, htmlService, weatherService, s3Service, veloService, dynamoService, securityService, vars);
+    	handler = new LambdaFunctionHandler(bedrockService, htmlService, weatherServiceFull, s3Service, veloService, dynamoService, securityService, vars);
     	bedrockService.setBedrockClient(bedrockClient);
     	bedrockService.setBedrockRuntimeClient(bedrockRuntimeClient);
     	s3Service.setS3Client(s3Client);
     	dynamoService.setDocumentClient(documentClient);
+    	weatherServiceFull.setHttpClient(httpClient);
     	
     	//AWS SDK JAVA 1 will be deprecated, needs to be replaced with AWS SDK JAVA 2 in future versions 
     	System.setProperty("aws.java.v1.disableDeprecationAnnouncement", "true");
@@ -82,7 +84,7 @@ public class LambdaFunctionHandlerTest {
     @BeforeEach
     public void setUp() throws IOException {
        
-    	WeatherData.resetWeatherData(weatherService);
+    	WeatherData.resetWeatherData(httpClient);
     	BedrockData.resetBedrockData(bedrockRuntimeClient, bedrockClient);
     	S3Data.resetS3Data(s3Client);
     	DynamoData.resetDynamoData(documentClient);
@@ -122,6 +124,37 @@ public class LambdaFunctionHandlerTest {
     	
     	response = handler.handleRequest(event, createContext());
     	assertEquals(429, response.getStatusCode(), "429 - too many requests");
+    }
+    
+    @Test
+    @DisplayName("Ensure correct weather data details")
+    public void testLambdaFunctionGetWeatherData() throws IOException {
+    	APIGatewayV2HTTPEvent event = TestUtils.parse("/api-gateway.event.get.json", APIGatewayV2HTTPEvent.class);
+    	
+    	//change to take other data from WeatherData
+    	event.getQueryStringParameters().put("lat", "45");
+    	event.getQueryStringParameters().put("lon", "45");
+    	
+    	APIGatewayV2HTTPResponse response = handler.handleRequest(event, createContext());
+    	
+    	System.out.println("TEST RESP: " + response);
+    	assertEquals(200, response.getStatusCode(), "200 - ok");
+    }
+    
+    @Test
+    @DisplayName("Basic test for WeatherService exception")
+    public void testLambdaWeatherServiceException() throws IOException {
+    	APIGatewayV2HTTPEvent event = TestUtils.parse("/api-gateway.event.get.json", APIGatewayV2HTTPEvent.class);
+    	
+    	//change to take other data from WeatherData
+    	event.getQueryStringParameters().put("lat", "1000");
+    	event.getQueryStringParameters().put("lon", "1000");
+    	
+    	APIGatewayV2HTTPResponse response = handler.handleRequest(event, createContext());
+    	
+    	System.out.println("TEST RESP: " + response);
+    	assertEquals(502, response.getStatusCode(), "502 - Bad Gateway");
+    	
     }
 
 }

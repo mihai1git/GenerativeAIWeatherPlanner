@@ -19,7 +19,7 @@ The tests could ran in Eclipse due to Mockito data injections in the mocks of th
 
 ![Weather Planning](screen_1.png "Weather Planning")
 
-## 3. AWS SDK features used
+## 3. AWS & JAVA SDK features used
 - The log is done in all application using Log4j2, that sends output to AWS CloudWatch service
 - Each AWS client used is encapsulated in a POJO application service
 - Deploy of AWS Lambda Function is done from the build process configured in pom.xml 
@@ -27,4 +27,5 @@ The tests could ran in Eclipse due to Mockito data injections in the mocks of th
 - Use AspectJ and AWS Powertools-logging to trace the execution of methods in local and cloud environments
 - Use Velocity framework templates, deployed in S3, to build Generative AI prompt and HTML page (src/main/resources)
 - Rate Based Authorization: requests for one Lambda are allowed based on requests rate to that Lambda (e.g. 10 requests/day); not authorized HTTP requests receive code 429
-
+- Programatically use the JSON output of Bedrock because it is very deterministic in structure, but not in message (stochastic)
+- Amazon Titan Text LLM does not connect externally to get data, and the recommendations are based only on input set of data (it is not an agentic system)

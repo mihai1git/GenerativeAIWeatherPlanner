@@ -20,6 +20,10 @@ import com.amazonaws.lambda.mihai.bedrockinvoker.aspect.TraceAll;
 import com.amazonaws.lambda.mihai.bedrockinvoker.model.WeatherData;
 import com.amazonaws.lambda.mihai.bedrockinvoker.model.WeatherDataHour;
 import com.amazonaws.lambda.mihai.bedrockinvoker.model.WeatherDataHourDetail;
+import com.amazonaws.lambda.mihai.bedrockinvoker.model.WeatherException;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
+import com.amazonaws.services.dynamodbv2.document.DynamoDB;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -35,7 +39,22 @@ public class WeatherService {
 	private static final String weatherURL = "https://api.openweathermap.org/data/3.0/onecall?units=metric&exclude=daily,minutely";
 	private static final Integer maxHours = 12;
 	
-	public WeatherData getWeatherForecast (String lat, String lon) {
+	private HttpClient httpClient;
+    
+    public WeatherService() {}
+    
+    public static WeatherService build() {
+    	
+    	WeatherService srv = new WeatherService();
+        
+    	HttpClient client = HttpClient.newBuilder().build();
+        
+        srv.setHttpClient(client);
+    	
+    	return srv;
+    }
+	
+	public WeatherData getWeatherForecast (String lat, String lon) throws WeatherException {
 
 		String jsonResponse = getRemoteWeatherResponse(lat, lon);
 		WeatherData response = new WeatherData();
@@ -90,7 +109,8 @@ public class WeatherService {
                 ((ObjectNode)jsonNode).put("dt", h.getHourDateStr());// for AI
                 
                 if (h.getHourDate().compareTo(response.getSunrise()) < 0  
-                		|| h.getHourDate().compareTo(response.getSunset()) > 0) {
+                		|| (h.getHourDate().compareTo(response.getSunset()) > 0 
+                				&& h.getHourDate().compareTo(response.getNextSunrise()) < 0)) {
                 	
                 	h.setIsDay(Boolean.FALSE);
                 } else {
@@ -122,7 +142,7 @@ public class WeatherService {
 	}
 	
 
-	public String getRemoteWeatherResponse (String lat, String lon) {
+	public String getRemoteWeatherResponse (String lat, String lon) throws WeatherException {
 		
 		String locatedWeatherURL = weatherURL + "&lat=" + lat + "&lon=" + lon + "&appid=" + environmentVariables.get(weatherKey);
 		//logger.debug("weatherURL " + locatedWeatherURL);
@@ -136,11 +156,16 @@ public class WeatherService {
 					  .GET()
 					  .build();
 			
-			HttpResponse<String> response = HttpClient.newBuilder()
-					  .build()
-					  .send(request, HttpResponse.BodyHandlers.ofString());
+			HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
 			HttpHeaders responseHeaders = response.headers();
+			int statusCode = response.statusCode();
+			logger.debug("statusCode: " + statusCode);
+			if (statusCode >= 400) {
+				WeatherException ex = new WeatherException();
+				ex.setStatusCode(statusCode);
+				throw ex;
+			}
 			jsonResponse = response.body();
 			
 		} catch (URISyntaxException ex) {
@@ -175,6 +200,14 @@ public class WeatherService {
 
 	public void setEnvironmentVariables(Map<String, String> environmentVariables) {
 		this.environmentVariables = environmentVariables;
+	}
+
+	public HttpClient getHttpClient() {
+		return httpClient;
+	}
+
+	public void setHttpClient(HttpClient httpClient) {
+		this.httpClient = httpClient;
 	}
 	
 	

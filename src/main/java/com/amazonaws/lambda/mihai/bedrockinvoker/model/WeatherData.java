@@ -2,6 +2,7 @@ package com.amazonaws.lambda.mihai.bedrockinvoker.model;
 
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -40,6 +41,17 @@ public class WeatherData {
 	public String getSunsetStr() {
 		return formatter.format(sunset);
 	}
+	
+	public Date getNextSunrise() {
+		return addDays(sunrise, 1);
+	}
+	
+    public static Date addDays(Date date, int days) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        cal.add(Calendar.DATE, days);
+        return cal.getTime();
+    }
 		
 	public Long getTimezoneOffset() {
 		return timezoneOffset;
