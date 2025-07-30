@@ -11,6 +11,7 @@ Weather data from the external server is included in Gen AI prompt. Part of weat
 ### 1.1. Generative AI model selection
 From the many Gen AI models in the Amazon AI Marketplace, I've considered Amazon Titan Text due to price and facilities that it has. A comparison among the Amazon Titan Text models (Premier, Express, Lite) lead to the conclusion that the models have the value/intelligence/features according to their [price](https://aws.amazon.com/bedrock/pricing/) and technical limitations of the moment, when LLMs are o a rising curve.
 The trade-off between cost and value of the model is a common consideration when choosing between different tiers of language models from Amazon or other providers. If highly professional Gen AI response is crucial for your application, and if it's feasible within your constraints, using the Premier model might be the most reliable solution. My final choice was Premier due to the consistent responses that it provides in consecutive invocations.
+When Amazon Titan stoped to be operational, I choosed Amazon Nova Pro that was designed to have same performances as Titan Premier. 
 
 ## 2. Application functionality
 Application is available online as a web page in the Applications section of my website: [mihaiadam.com](https://mihaiadam.com/weather). Also, a screen could be seen below.<br>
@@ -28,4 +29,5 @@ The tests could ran in Eclipse due to Mockito data injections in the mocks of th
 - Use Velocity framework templates, deployed in S3, to build Generative AI prompt and HTML page (src/main/resources)
 - Rate Based Authorization: requests for one Lambda are allowed based on requests rate to that Lambda (e.g. 10 requests/day); not authorized HTTP requests receive code 429
 - Programatically use the JSON output of Bedrock because it is very deterministic in structure, but not in message (stochastic)
-- Amazon Titan Text LLM does not connect externally to get data, and the recommendations are based only on input set of data (it is not an agentic system)
+- Amazon Nova LLM does not connect externally to get data, and the recommendations are based only on input set of data (it is not an agentic system)
+- Amazon Nova LLM prompt cache
