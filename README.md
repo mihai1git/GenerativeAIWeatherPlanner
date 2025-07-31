@@ -3,15 +3,16 @@
 ## 1. Overview
 
 The purpose of the application is to give recommendation for dressing and activities according to weather forecast for the next 12 hours after the invocation. Weather data is taken from an [external weather service](https://openweathermap.org/api) and AWS Gen AI makes the recommendation in real-time, in same web request.
-This application invoke Generative AI service from Amazon Marketplace, [Bedrock](https://aws.amazon.com/bedrock/). After some analysis, the model chosen was: [Amazon Titan Text Premier](https://docs.aws.amazon.com/bedrock/latest/userguide/model-parameters-titan.html), [InvokeModel](https://github.com/awsdocs/aws-doc-sdk-examples/tree/main/javav2/example_code/bedrock-runtime).
+This application invoke Generative AI service from Amazon Marketplace, [Bedrock](https://aws.amazon.com/bedrock/). After some analysis, the model chosen was: [Amazon Nova Pro](https://aws.amazon.com/ai/generative-ai/nova/), [ConverseModel](https://github.com/awsdocs/aws-doc-sdk-examples/tree/main/javav2/example_code/bedrock-runtime).
 Weather data from the external server is included in Gen AI prompt. Part of weather data and Gen AI response are included in a web page according to below diagram.
 
-![Weather Planning](aws_weather_planning_v2.png "Weather Planning")
+![Weather Planning](aws_weather_planning_v3.png "Weather Planning")
 
 ### 1.1. Generative AI model selection
 From the many Gen AI models in the Amazon AI Marketplace, I've considered Amazon Titan Text due to price and facilities that it has. A comparison among the Amazon Titan Text models (Premier, Express, Lite) lead to the conclusion that the models have the value/intelligence/features according to their [price](https://aws.amazon.com/bedrock/pricing/) and technical limitations of the moment, when LLMs are o a rising curve.
-The trade-off between cost and value of the model is a common consideration when choosing between different tiers of language models from Amazon or other providers. If highly professional Gen AI response is crucial for your application, and if it's feasible within your constraints, using the Premier model might be the most reliable solution. My final choice was Premier due to the consistent responses that it provides in consecutive invocations.
-When Amazon Titan stoped to be operational, I choosed Amazon Nova Pro that was designed to have same performances as Titan Premier. 
+The trade-off between cost and value of the model is a common consideration when choosing between different tiers of language models from Amazon or other providers. If highly professional Gen AI response is crucial for your application, and if it's feasible within your constraints, using the Premier model might be the most reliable solution, with consistent responses in consecutive invocations.
+When Amazon Titan stoped to be operational, I used [Amazon Nova Pro](https://aws.amazon.com/ai/generative-ai/nova/) that was designed to have same performances as Titan Premier. 
+Nova Pro has also promt caching technology, that reduce LLM response time and input token costs. Prompt caching is usefull in this use-case because LLM is directly linked to a web page that supports refresh and multiple users, thus multiple queries with common parts to LLM.
 
 ## 2. Application functionality
 Application is available online as a web page in the Applications section of my website: [mihaiadam.com](https://mihaiadam.com/weather). Also, a screen could be seen below.<br>
