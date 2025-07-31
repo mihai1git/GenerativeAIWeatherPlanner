@@ -4,6 +4,11 @@
 <style>
 </style>
 <SCRIPT type=text/javascript>
+
+function onLoadUnLocalized() {
+	document.getElementById("frame").src = "https://2dbz7fjukf.execute-api.us-east-2.amazonaws.com";
+}
+
 function onLoad() {
 	if (confirm("This recommendation is made for default location: Europe/Bucharest.\nIf you want recommendation for your location, press OK.\nFor default press Cancel.")) {
 	  if (navigator.geolocation) {
@@ -32,7 +37,7 @@ function displayError(error) {
   }
   
 </SCRIPT>
-<body onload="onLoad();">
+<body onload="onLoadUnLocalized();">
 <iframe id="frame" src="https://mihaiadam.com/wp-content/uploads/2024/10/waiting.html" width="100%" height="500px" ></iframe>
 </body>
 </html>

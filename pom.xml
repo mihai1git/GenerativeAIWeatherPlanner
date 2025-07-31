@@ -380,13 +380,13 @@
 	<dependency>
 	    <groupId>software.amazon.awssdk</groupId>
 	    <artifactId>bedrock</artifactId>
-	    <version>2.28.13</version>
+	    <version>2.32.10</version>
 	</dependency>
 	<!-- https://mvnrepository.com/artifact/software.amazon.awssdk/bedrockruntime -->
 	<dependency>
 	    <groupId>software.amazon.awssdk</groupId>
 	    <artifactId>bedrockruntime</artifactId>
-	    <version>2.28.13</version>
+	    <version>2.32.10</version>
 	</dependency>
 		
 	    <!-- https://mvnrepository.com/artifact/org.json/json -->
@@ -408,8 +408,6 @@
 	    <artifactId>velocity-tools-generic</artifactId>
 	    <version>3.1</version>
 	</dependency>
-
-
  
   </dependencies>
 </project>

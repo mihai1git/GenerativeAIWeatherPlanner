@@ -12,9 +12,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.amazonaws.lambda.mihai.bedrockinvoker.aspect.TraceAll;
+import com.amazonaws.lambda.mihai.bedrockinvoker.licensed.Converse;
 import com.amazonaws.lambda.mihai.bedrockinvoker.licensed.GetFoundationModel;
-import com.amazonaws.lambda.mihai.bedrockinvoker.licensed.InvokeModel;
 import com.amazonaws.lambda.mihai.bedrockinvoker.licensed.ListFoundationModels;
+import com.amazonaws.lambda.mihai.bedrockinvoker.model.PromptContent;
 import com.amazonaws.lambda.mihai.bedrockinvoker.model.WeatherData;
 import com.amazonaws.lambda.mihai.bedrockinvoker.model.WeatherPlanner;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -36,6 +37,14 @@ public class BedrockService {
 	
 	private Map<String, String> environmentVariables;
 	//amazon.titan-text-lite-v1 / amazon.titan-text-express-v1 / amazon.titan-text-premier-v1:0
+	/**
+	 * As of August 15, 2025 these models will no longer be operational
+	 * We recommend one of the following 4 options:
+1) If you are using Titan Text G1 - Premier, migrate to the latest version of Nova Pro (amazon.nova-pro-v1:0) [3] by updating your application code [4].
+2) If you are using Titan Text G1 - Express, migrate to the latest version of Nova Micro (amazon.nova-micro-v1:0) [3] by updating your application code [4].
+3) If you are using Titan Text G1 - Lite, migrate to the latest version of Nova Lite (amazon.nova-lite-v1:0) [3] by updating your application code [4].
+4) If you are using Titan Image Generator G1 V1, migrate to the latest version of Nova Canvas (amazon.nova-canvas-v1:0) [3] by updating your application code [4].
+	 */
 	public static final String modelIDKey = "BEDROCK_MODEL_ID";
 		
 	public BedrockService() {}
@@ -93,12 +102,19 @@ public class BedrockService {
 		values.put("genAiStyle", genAiStyle);
 		
 		String prompt = velocityService.getTemplateFromS3("bedrockPromtContext.vm", values);
-		logger.debug("prompt: " + prompt);	
+		        
+        PromptContent promptContent = new PromptContent();
+        promptContent.setStaticContent(prompt.substring(1, prompt.indexOf(PromptContent.CACHE_POINT_MARKER)));
+        promptContent.setDynamicContent(prompt.substring(prompt.indexOf(PromptContent.CACHE_POINT_MARKER) + PromptContent.CACHE_POINT_MARKER.length() + 1));
+                
+		logger.debug("prompt: " + promptContent);	
+		
 		WeatherPlanner planner = new WeatherPlanner();
 		
 		planner.setWeatherData(forecast);
 		planner.setGenAiStyle(genAiStyle);
-		String llmResp = (new InvokeModel()).invokeModel(bedrockRuntimeClient, prompt, environmentVariables.get(modelIDKey));
+		//String llmResp = (new InvokeModel()).invokeModel(bedrockRuntimeClient, prompt, environmentVariables.get(modelIDKey));
+		String llmResp = (new Converse()).converse(bedrockRuntimeClient, promptContent, environmentVariables.get(modelIDKey));
 		processLLMResponse (planner, llmResp);
 		
 		return planner;
