@@ -21,7 +21,14 @@ The tests could ran in Eclipse due to Mockito data injections in the mocks of th
 
 ![Weather Planning](screen_1.png "Weather Planning")
 
-## 3. AWS & JAVA SDK features used
+## 3. Source for Model Context Protocol server
+The application was used with same business in an MCP Server. The same View Object was used to output result for HTML page and JSON data.<br>
+The MCP Server runs in Amazon Bedrock AgentCore Runtime environment. The server is built for agentic LLMs that can connect when they decide and take data according to communication with their users. Custom built highly structured data from this application was published to the unstructured environment of LLMs.<br>
+The architecture is displayed below. 
+
+![MCP Server](aws_AI_MCP_server_v1.png "Weather Planning in MCP Server")
+
+## 4. AWS & JAVA SDK features used
 - The log is done in all application using Log4j2, that sends output to AWS CloudWatch service
 - Each AWS client used is encapsulated in a POJO application service
 - Deploy of AWS Lambda Function is done from the build process configured in pom.xml 
