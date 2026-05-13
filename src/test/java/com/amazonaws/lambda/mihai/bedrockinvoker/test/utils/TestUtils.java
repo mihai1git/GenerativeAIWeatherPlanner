@@ -32,6 +32,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
@@ -51,7 +52,7 @@ public class TestUtils {
         mapper.registerModule(new TestJacksonMapperModule());
 
         snsEventMapper.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
-        snsEventMapper.setPropertyNamingStrategy(PropertyNamingStrategy.PASCAL_CASE_TO_CAMEL_CASE);
+        snsEventMapper.setPropertyNamingStrategy(PropertyNamingStrategies.UPPER_CAMEL_CASE);
         snsEventMapper.registerModule(new TestJacksonMapperModule());
 
         dynamodbEventMapper.configure(JsonParser.Feature.ALLOW_COMMENTS, true);

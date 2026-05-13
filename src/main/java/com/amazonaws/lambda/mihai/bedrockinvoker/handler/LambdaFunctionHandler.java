@@ -6,6 +6,7 @@ import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.amazonaws.lambda.mihai.bedrockinvoker.model.Constants;
 import com.amazonaws.lambda.mihai.bedrockinvoker.model.RateAuthorization;
 import com.amazonaws.lambda.mihai.bedrockinvoker.model.WeatherData;
 import com.amazonaws.lambda.mihai.bedrockinvoker.model.WeatherException;
@@ -86,18 +87,16 @@ public class LambdaFunctionHandler implements RequestHandler<APIGatewayV2HTTPEve
     }
 
     @Override
-    @Logging(logEvent = true,correlationIdPath = "/requestContext/requestId")
     public APIGatewayV2HTTPResponse handleRequest(APIGatewayV2HTTPEvent event, Context context) {
     	
     	logger.debug("Received HTTP AWS API GW route key: " + event.getRouteKey());
     	
     	String response = null;
     	Map<String, String> headers = new HashMap<String, String>();
-    	headers.put("Content-Type", "text/html");
     	
     	//early return if exceed quota
     	RateAuthorization rateAuth = securityService.isRateBasedAuthorized();
-    	if (!rateAuth.getAuthorization()) 
+    	if (Boolean.FALSE.equals(rateAuth.getAuthorization())) 
     		return 	APIGatewayV2HTTPResponse.builder()
 		             .withStatusCode(429)//429 Too Many Requests (RFC 6585)
 		             .withHeaders(headers)
@@ -108,14 +107,18 @@ public class LambdaFunctionHandler implements RequestHandler<APIGatewayV2HTTPEve
     	//if option is NO, choose default: Bucharest/Europe
     	String lat = "44.43225";
     	String lon = "26.10626";
+    	String responseType = Constants.RESPONSE_TYPE_HTML;
     	Map<String, String> queryParams = event.getQueryStringParameters();
     	if (queryParams != null && queryParams.get("lat") != null && queryParams.get("lon") != null) {
         	lat = queryParams.get("lat");
         	lon = queryParams.get("lon");
     	}
+    	if (queryParams != null && queryParams.get("responseType") != null) {
+    		responseType = queryParams.get("responseType");
+    	}
     	logger.debug("geolocation (lat,lon): " + lat + " " + lon);
     	
-        if (Boolean.valueOf(environmentVariables.getOrDefault("logFoundationModelsInfo", "false"))) {
+        if (Boolean.TRUE.equals(Boolean.valueOf(environmentVariables.getOrDefault("logFoundationModelsInfo", "false")))) {
         	bedrockService.logFoundationModelsInfo();
         }
     	
@@ -132,7 +135,28 @@ public class LambdaFunctionHandler implements RequestHandler<APIGatewayV2HTTPEve
             
             WeatherPlannerView view = new WeatherPlannerView();
             view.setWeatherPlanner(result);
-            response = htmlService.getWeatherPlannerPage(view);
+
+            //String responseType = environmentVariables.getOrDefault("responseType", Constants.RESPONSE_TYPE_HTML);
+            logger.debug("responseType: " + responseType);
+            
+            switch (responseType) {
+			case Constants.RESPONSE_TYPE_HTML:
+				response = htmlService.getWeatherPlannerPage(view);
+				headers.put("Content-Type", "text/html");
+				break;
+				
+			case Constants.RESPONSE_TYPE_JSON:
+				logger.debug("JSON VIEW: " + view.getWeatherPlannerForMCP ());
+				response = view.getWeatherPlannerForMCP ();
+				headers.put("Content-Type", "application/json");
+				break;
+
+			default:
+				response = htmlService.getWeatherPlannerPage(view);
+				break;
+			}
+            
+            
             
         } catch (WeatherException ex) {
             return APIGatewayV2HTTPResponse.builder()
@@ -161,5 +185,9 @@ public class LambdaFunctionHandler implements RequestHandler<APIGatewayV2HTTPEve
     	bedrockService.setEnvironmentVariables(vars);
     	weatherService.setEnvironmentVariables(vars);
     	securityService.setEnvironmentVariables(vars);
+    }
+    
+    public Map<String, String> getVars() {
+    	return this.environmentVariables;
     }
 }

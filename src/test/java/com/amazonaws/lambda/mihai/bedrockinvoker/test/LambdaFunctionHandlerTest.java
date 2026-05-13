@@ -17,6 +17,7 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
 import com.amazonaws.lambda.mihai.bedrockinvoker.handler.LambdaFunctionHandler;
+import com.amazonaws.lambda.mihai.bedrockinvoker.model.Constants;
 import com.amazonaws.lambda.mihai.bedrockinvoker.service.BedrockService;
 import com.amazonaws.lambda.mihai.bedrockinvoker.service.DynamoService;
 import com.amazonaws.lambda.mihai.bedrockinvoker.service.HTMLService;
@@ -154,6 +155,26 @@ public class LambdaFunctionHandlerTest {
     	
     	System.out.println("TEST RESP: " + response);
     	assertEquals(502, response.getStatusCode(), "502 - Bad Gateway");
+    	
+    }
+    
+    @Test
+    @DisplayName("Basic test for WeatherService as JSON")
+    public void testLambdaWeatherServiceJSON() throws IOException {
+    	APIGatewayV2HTTPEvent event = TestUtils.parse("/api-gateway.event.get.json", APIGatewayV2HTTPEvent.class);
+    	
+    	//change to take other data from WeatherData
+    	event.getQueryStringParameters().put("lat", "45");
+    	event.getQueryStringParameters().put("lon", "45");
+    	event.getQueryStringParameters().put("responseType", "JSON");
+    	
+    	handler.getVars().put("responseType", Constants.RESPONSE_TYPE_JSON);
+    	
+    	APIGatewayV2HTTPResponse response = handler.handleRequest(event, createContext());
+    	
+    	System.out.println("TEST RESP: " + response);
+    	assertEquals(200, response.getStatusCode(), "200 - Ok");
+    	assertEquals("application/json", response.getHeaders().get("Content-Type"), "The response type is changed to JSON !");
     	
     }
 

@@ -32,3 +32,5 @@ The tests could ran in Eclipse due to Mockito data injections in the mocks of th
 - Programatically use the JSON output of Bedrock because it is very deterministic in structure, but not in message (stochastic)
 - Amazon Nova LLM does not connect externally to get data, and the recommendations are based only on input set of data (it is not an agentic system)
 - Amazon Nova LLM prompt cache
+- Amazon Nova LLM output with literary style : formal, casual, funny, cosy, romantic, meteorological, news, philosophical
+- Java Object serialization to JSON with Jackson MixIn filters
