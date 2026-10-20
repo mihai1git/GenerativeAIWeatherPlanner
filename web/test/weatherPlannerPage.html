@@ -21,8 +21,51 @@
 			background-color: aqua;
 			font-size: 12px;
 		}
+			
+	    button {
+		    padding: 7px 16px;
+		    background-color: #004D4D;
+		    color: #FFFFFF;
+		    border: 1px solid #80E5E5;
+		    border-radius: 6px;
+		    font-family: inherit;
+		    font-size: 12px;
+		    font-weight: 600;
+		    line-height: 1.4;
+		    cursor: pointer;
+		    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+		    transition: background-color 0.2s ease,
+		                box-shadow 0.2s ease;
+		}
+		
+		button:hover {
+		    background-color: #003838;
+		    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.22);
+		}
+		
+		button:active {
+		    background-color: #002B2B;
+		    box-shadow: none;
+		}
+		
+		button:focus-visible {
+		    outline: 2px solid #FFFFFF;
+		    outline-offset: 3px;
+		}
 	</style>
-	<SCRIPT type=text/javascript> </SCRIPT> <body>
+	<SCRIPT type=text/javascript>
+	function onLoadUnLocalized() {
+		
+		document.getElementById("newPlanButton").disabled = true;
+		
+		document.body.innerHTML =
+	        '<pre id="displayer" style="background-color: white">Please wait a few seconds, LLM is thinking...</pre>';
+		
+		//self['location']['replace'](self.location['href']);
+		
+	}
+	</SCRIPT>
+	<body>
 		<table width ="800px">
 	<tr style="background-color: teal; font-size: 25px"><td colspan="2"><b>Weather Planner</b></td></tr>
 	<tr style="background-color: teal; font-size: 15px"><td colspan="2">Start time: 2024.10.23 08:46:11</td></tr>
@@ -111,6 +154,9 @@ Overall, it's a perfect day to enjoy the outdoors and soak up the sun. So get ou
 </pre>
 	</td>
 	</tr>
+	<tr style="background-color: teal;"><td colspan="2">
+		<table width ="100%"><tr><td width="80%" style="font-size: 15px"></td><td><button id="newPlanButton" type="button" onclick="onLoadUnLocalized();">New Plan</button></td></tr></table>
+	</td></tr>
 	</table>
 </body>
 </html>

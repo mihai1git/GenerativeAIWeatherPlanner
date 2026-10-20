@@ -14,6 +14,11 @@ public class WeatherData {
 	
 	private String lat;
 	private String lon;
+	/** 
+	 * The timezone name is Time Zone Identifier (IANA). 
+	 * This is name of one of the most important cities in the area, not necessary the city that correspond to the GPS coordinates in the request.
+	 * Ex: for main cities Los Angeles and Seattle, the timezone is: America/Los_Angeles
+	 * **/
 	private String timezone;
 	private Long timezoneOffset;
 	private Date serverTime;
